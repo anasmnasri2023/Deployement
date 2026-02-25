@@ -20,7 +20,7 @@ jobs:
       # Install & Test Backend
       - name: Build & Test NodeJS
         run: |
-          cd NodeJS/app
+          cd E-LearningBackend
           npm install
           npm test
 
