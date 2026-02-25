@@ -7,7 +7,7 @@ on:
     branches:
       - main
 env:
- DOCKER_USERNAME-${{ vars.DOCKERHUB_USERNAME }}
+ DOCKER_USERNAME : ${{ vars.DOCKERHUB_USERNAME }}
 jobs:
   # This workflow contains a single job called "build"
   build:
