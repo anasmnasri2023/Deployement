@@ -32,7 +32,7 @@ pipeline {
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'anasmnasri2023',  // ✅ Corriger ici
+                    credentialsId: 'anasmnasri',  
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
