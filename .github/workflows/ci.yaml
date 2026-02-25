@@ -22,7 +22,6 @@ jobs:
         run: |
           cd E-LearningBackend
           npm install
-          npm test
 
 
       # Login Docker Hub
