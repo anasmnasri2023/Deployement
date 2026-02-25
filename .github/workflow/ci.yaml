@@ -38,7 +38,7 @@ jobs:
       - name: build image Angular
         run: |
          docker build -t $DOCKER_USERNAME/React-app . /E-LearningFrontend
-         docker push $DOCKER_USERNAME/React-app*
+         docker push $DOCKER_USERNAME/React-app
       - name: run docker compose
         run: |
         docker compose down
