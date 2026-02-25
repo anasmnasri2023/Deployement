@@ -9,7 +9,14 @@ pipeline {
         }
         stage('Clone repo') {
             steps {
-                sh 'git clone https://github.com/anasmnasri2023/Deployement.git'
+                bat 'git clone https://github.com/anasmnasri2023/Deployement.git'
+            }
+        }
+        stage('Build / Deploy') {
+            steps {
+                dir('Deployement') {
+                    bat 'echo "Ici tes commandes de build..."'
+                }
             }
         }
     }
