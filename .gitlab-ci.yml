@@ -1,0 +1,94 @@
+# .gitlab-ci.yml
+
+variables:
+  DOCKER_USERNAME: anasmnasri
+  IMAGE_BACKEND: $DOCKER_USERNAME/node-app
+  IMAGE_FRONTEND: $DOCKER_USERNAME/react-app
+
+stages:
+  - install
+  - test
+  - build
+  - push
+
+# ─── CACHE + INSTALL Backend ──────────────────────────────
+install-backend:
+  stage: install
+  image: node:18
+  cache:
+    key: backend-cache
+    paths:
+      - E-LearningBackend/node_modules/
+  script:
+    - cd E-LearningBackend
+    - npm install
+    - npm install --save-dev mocha chai
+
+# ─── CACHE + INSTALL Frontend ─────────────────────────────
+install-frontend:
+  stage: install
+  image: node:18
+  cache:
+    key: frontend-cache
+    paths:
+      - E-LearningFrontend/node_modules/
+  script:
+    - cd E-LearningFrontend
+    - npm install
+
+# ─── TEST Backend (Mocha & Chai) ──────────────────────────
+test-backend:
+  stage: test
+  image: node:18
+  cache:
+    key: backend-cache
+    paths:
+      - E-LearningBackend/node_modules/
+  script:
+    - cd E-LearningBackend
+    - |
+      if [ -d "test" ]; then
+        echo "Lancement des tests Mocha & Chai..."
+        npx mocha --recursive --timeout 10000
+      else
+        echo "Aucun dossier test/ trouvé — étape ignorée"
+      fi
+
+# ─── TEST Frontend (Jest) ─────────────────────────────────
+test-frontend:
+  stage: test
+  image: node:18
+  cache:
+    key: frontend-cache
+    paths:
+      - E-LearningFrontend/node_modules/
+  script:
+    - cd E-LearningFrontend
+    - echo "Lancement des tests Jest..."
+    - CI=true npm test -- --watchAll=false --passWithNoTests
+
+# ─── BUILD & PUSH Backend ─────────────────────────────────
+build-push-backend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  script:
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $IMAGE_BACKEND ./E-LearningBackend
+    - docker push $IMAGE_BACKEND
+  after_script:
+    - docker logout
+
+# ─── BUILD & PUSH Frontend ────────────────────────────────
+build-push-frontend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  script:
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $IMAGE_FRONTEND ./E-LearningFrontend
+    - docker push $IMAGE_FRONTEND
+  after_script:
+    - docker logout
