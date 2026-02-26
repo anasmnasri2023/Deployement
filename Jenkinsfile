@@ -114,7 +114,7 @@ pipeline {
             }
         }
 
-        // ✅ QUALITY GATE
+        //  QUALITY GATE
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
