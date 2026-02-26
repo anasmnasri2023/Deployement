@@ -36,7 +36,6 @@ pipeline {
                         }
                     }
                     bat 'npm install'
-                    // Installation Mocha & Chai
                     bat 'npm install --save-dev mocha chai'
                     script {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
@@ -52,7 +51,6 @@ pipeline {
             steps {
                 dir('Deployement/E-LearningBackend') {
                     script {
-                        // Vérifie si un dossier test/ ou fichiers .test.js existent
                         def hasTestFiles = bat(
                             script: 'if exist test\\ (exit 0) else (exit 1)',
                             returnStatus: true
@@ -97,10 +95,30 @@ pipeline {
             steps {
                 dir('Deployement/E-LearningFrontend') {
                     echo "Lancement des tests Jest..."
-                    // CI=true     → pas de mode interactif
-                    // --watchAll=false    → exécution unique
-                    // --passWithNoTests   → ne bloque pas si aucun test trouvé
-                                bat 'set CI=true && npm test -- --watchAll=false --passWithNoTests'
+                    bat 'set CI=true && npm test -- --watchAll=false --passWithNoTests'
+                }
+            }
+        }
+
+        // ✅ SONARQUBE ANALYSIS
+        stage('SonarQube Analysis') {
+            steps {
+                dir('Deployement') {
+                    script {
+                        def scannerHome = tool 'SonarScanner'
+                        withSonarQubeEnv('SonarQube') {
+                            bat "${scannerHome}\\bin\\sonar-scanner"
+                        }
+                    }
+                }
+            }
+        }
+
+        // ✅ QUALITY GATE
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
