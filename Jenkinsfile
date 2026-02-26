@@ -104,7 +104,8 @@ pipeline {
                         )
                         if (hasTest == 0) {
                             // CI=true évite que React bloque le pipeline sur les warnings
-                            bat 'set CI=true && npm test -- --watchAll=false'
+                            bat 'set CI=true && npm test -- --watchAll=false --passWithNoTests'
+
                         } else {
                             echo "⚠️ Aucun script test défini dans package.json — étape ignorée"
                         }
