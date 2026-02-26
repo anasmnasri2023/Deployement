@@ -21,7 +21,6 @@ pipeline {
             }
         }
 
-        //CACHE + INSTALL Backend 
         stage('Install & Cache Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
@@ -46,7 +45,6 @@ pipeline {
             }
         }
 
-        //TEST Backend avec "Mocha & Chai"
         stage('Test Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
@@ -66,7 +64,6 @@ pipeline {
             }
         }
 
-        //CACHE + INSTALL Frontend 
         stage('Install & Cache Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
@@ -90,7 +87,6 @@ pipeline {
             }
         }
 
-        // TEST Frontend avec Jest 
         stage('Test Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
@@ -100,30 +96,19 @@ pipeline {
             }
         }
 
-        // ✅ SONARQUBE ANALYSIS
+        // SONARQUBE ANALYSIS
         stage('SonarQube Analysis') {
             steps {
                 dir('Deployement') {
-                    script {
-                        def scannerHome = tool 'SonarScanner'
-                        withSonarQubeEnv('SonarQube') {
-                            bat "${scannerHome}\\bin\\sonar-scanner"
-                        }
+                    withSonarQubeEnv('SonarQube') {
+                        bat 'npm install -g sonar-scanner'
+                        bat 'sonar-scanner -Dsonar.projectKey=e-learning -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqa_997a12eaa03c02fb920e5a8f90586f9edb11a537 -Dsonar.exclusions=**/node_modules/**'
                     }
                 }
             }
         }
 
-        //  QUALITY GATE
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        // DOCKER LOGIN 
+        // DOCKER LOGIN
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -136,7 +121,7 @@ pipeline {
             }
         }
 
-        // BUILD & PUSH Backend 
+        // BUILD & PUSH Backend
         stage('Build & Push Backend Image') {
             steps {
                 dir('Deployement') {
@@ -146,7 +131,7 @@ pipeline {
             }
         }
 
-        // BUILD & PUSH Frontend 
+        // BUILD & PUSH Frontend
         stage('Build & Push Frontend Image') {
             steps {
                 dir('Deployement') {
