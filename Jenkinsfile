@@ -21,15 +21,13 @@ pipeline {
             }
         }
 
-        // ─── CACHE node_modules Backend ───────────────────────────────────────
+        // ─── CACHE + INSTALL Backend ───────────────────────────────────────────
         stage('Install & Cache Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
-                    // Restore cache si node_modules existe déjà
                     script {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningBackend\\node_modules"
-
                         if (fileExists(cacheDir)) {
                             echo "♻️ Cache Backend trouvé — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
@@ -38,7 +36,8 @@ pipeline {
                         }
                     }
                     bat 'npm install'
-                    // Sauvegarde du cache après install
+                    // Installation Mocha & Chai
+                    bat 'npm install --save-dev mocha chai'
                     script {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
@@ -48,34 +47,34 @@ pipeline {
             }
         }
 
-        // ─── TEST Backend ──────────────────────────────────────────────────────
+        // ─── TEST Backend avec Mocha & Chai ────────────────────────────────────
         stage('Test Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
                     script {
-                        // Vérifie si un script test est défini dans package.json
-                        def hasTest = bat(
-                            script: 'node -e "const p=require(\'./package.json\'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"',
+                        // Vérifie si un dossier test/ ou fichiers .test.js existent
+                        def hasTestFiles = bat(
+                            script: 'if exist test\\ (exit 0) else (exit 1)',
                             returnStatus: true
                         )
-                        if (hasTest == 0) {
-                            bat 'npm test'
+                        if (hasTestFiles == 0) {
+                            echo "🧪 Lancement des tests Mocha & Chai..."
+                            bat 'npx mocha --recursive --timeout 10000'
                         } else {
-                            echo "⚠️ Aucun script test défini dans package.json — étape ignorée"
+                            echo "⚠️ Aucun dossier test/ trouvé — étape ignorée"
                         }
                     }
                 }
             }
         }
 
-        // ─── CACHE node_modules Frontend ──────────────────────────────────────
+        // ─── CACHE + INSTALL Frontend ──────────────────────────────────────────
         stage('Install & Cache Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
                     script {
                         def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningFrontend\\node_modules"
-
                         if (fileExists(cacheDir)) {
                             echo "♻️ Cache Frontend trouvé — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
@@ -93,28 +92,20 @@ pipeline {
             }
         }
 
-        // ─── TEST Frontend ─────────────────────────────────────────────────────
+        // ─── TEST Frontend avec Jest ────────────────────────────────────────────
         stage('Test Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
-                    script {
-                        def hasTest = bat(
-                            script: 'node -e "const p=require(\'./package.json\'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"',
-                            returnStatus: true
-                        )
-                        if (hasTest == 0) {
-                            // CI=true évite que React bloque le pipeline sur les warnings
-                            bat 'set CI=true && npm test -- --watchAll=false --passWithNoTests'
-
-                        } else {
-                            echo "⚠️ Aucun script test défini dans package.json — étape ignorée"
-                        }
-                    }
+                    echo "🧪 Lancement des tests Jest..."
+                    // CI=true     → pas de mode interactif
+                    // --watchAll=false    → exécution unique
+                    // --passWithNoTests   → ne bloque pas si aucun test trouvé
+                    bat 'set CI=true && npx react-scripts test --watchAll=false --passWithNoTests'
                 }
             }
         }
 
-        // ─── DOCKER LOGIN ──────────────────────────────────────────────────────
+        // ─── DOCKER LOGIN ───────────────────────────────────────────────────────
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -127,7 +118,7 @@ pipeline {
             }
         }
 
-        // ─── BUILD & PUSH Backend ──────────────────────────────────────────────
+        // ─── BUILD & PUSH Backend ───────────────────────────────────────────────
         stage('Build & Push Backend Image') {
             steps {
                 dir('Deployement') {
@@ -137,7 +128,7 @@ pipeline {
             }
         }
 
-        // ─── BUILD & PUSH Frontend ─────────────────────────────────────────────
+        // ─── BUILD & PUSH Frontend ──────────────────────────────────────────────
         stage('Build & Push Frontend Image') {
             steps {
                 dir('Deployement') {
@@ -156,7 +147,6 @@ pipeline {
             echo '❌ Echec du pipeline. Vérifier les logs.'
         }
         always {
-            // Nettoyage des credentials Docker après chaque run
             bat 'docker logout'
         }
     }
