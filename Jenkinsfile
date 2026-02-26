@@ -100,7 +100,7 @@ pipeline {
                     // CI=true     → pas de mode interactif
                     // --watchAll=false    → exécution unique
                     // --passWithNoTests   → ne bloque pas si aucun test trouvé
-                    bat 'set CI=true && npx react-scripts test --watchAll=false --passWithNoTests'
+                                bat 'set CI=true && npm test -- --watchAll=false --passWithNoTests'
                 }
             }
         }
