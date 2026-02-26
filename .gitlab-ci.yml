@@ -1,7 +1,7 @@
 variables:
   DOCKER_USERNAME: "anasmnasri"
-  IMAGE_BACKEND: "$DOCKER_USERNAME/node-app"
-  IMAGE_FRONTEND: "$DOCKER_USERNAME/react-app"
+  IMAGE_BACKEND: "anasmnasri/node-app"
+  IMAGE_FRONTEND: "anasmnasri/react-app"
 
 stages:
   - install
@@ -40,7 +40,7 @@ test-backend:
       - E-LearningBackend/node_modules/
   script:
     - cd E-LearningBackend
-    - if [ -d "test" ]; then npx mocha --recursive --timeout 10000; else echo "Aucun test trouvé"; fi
+    - if [ -d "test" ]; then npx mocha --recursive --timeout 10000; else echo "Aucun test trouve"; fi
 
 test-frontend:
   stage: test
