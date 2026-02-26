@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        //TEST Backend avec Mocha & Chai
+        //TEST Backend avec "Mocha & Chai"
         stage('Test Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
