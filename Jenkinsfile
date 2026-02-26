@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        // ─── CACHE + INSTALL Backend ───────────────────────────────────────────
+        //CACHE + INSTALL Backend 
         stage('Install & Cache Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
@@ -29,10 +29,10 @@ pipeline {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningBackend\\node_modules"
                         if (fileExists(cacheDir)) {
-                            echo "♻️ Cache Backend trouvé — restauration..."
+                            echo "Cache Backend trouvé — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
                         } else {
-                            echo "⚠️ Pas de cache — installation complète..."
+                            echo "Pas de cache — installation complète..."
                         }
                     }
                     bat 'npm install'
@@ -41,13 +41,13 @@ pipeline {
                     script {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                        echo "✅ Cache Backend sauvegardé"
+                        echo "Cache Backend sauvegardé"
                     }
                 }
             }
         }
 
-        // ─── TEST Backend avec Mocha & Chai ────────────────────────────────────
+        //TEST Backend avec Mocha & Chai
         stage('Test Backend') {
             steps {
                 dir('Deployement/E-LearningBackend') {
@@ -58,17 +58,17 @@ pipeline {
                             returnStatus: true
                         )
                         if (hasTestFiles == 0) {
-                            echo "🧪 Lancement des tests Mocha & Chai..."
+                            echo "Lancement des tests Mocha & Chai..."
                             bat 'npx mocha --recursive --timeout 10000'
                         } else {
-                            echo "⚠️ Aucun dossier test/ trouvé — étape ignorée"
+                            echo "Aucun dossier test/ trouvé — étape ignorée"
                         }
                     }
                 }
             }
         }
 
-        // ─── CACHE + INSTALL Frontend ──────────────────────────────────────────
+        //CACHE + INSTALL Frontend 
         stage('Install & Cache Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
@@ -76,27 +76,27 @@ pipeline {
                         def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningFrontend\\node_modules"
                         if (fileExists(cacheDir)) {
-                            echo "♻️ Cache Frontend trouvé — restauration..."
+                            echo "Cache Frontend trouvé — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
                         } else {
-                            echo "⚠️ Pas de cache — installation complète..."
+                            echo "Pas de cache — installation complète..."
                         }
                     }
                     bat 'npm install'
                     script {
                         def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
                         bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                        echo "✅ Cache Frontend sauvegardé"
+                        echo "Cache Frontend sauvegardé"
                     }
                 }
             }
         }
 
-        // ─── TEST Frontend avec Jest ────────────────────────────────────────────
+        // TEST Frontend avec Jest 
         stage('Test Frontend') {
             steps {
                 dir('Deployement/E-LearningFrontend') {
-                    echo "🧪 Lancement des tests Jest..."
+                    echo "Lancement des tests Jest..."
                     // CI=true     → pas de mode interactif
                     // --watchAll=false    → exécution unique
                     // --passWithNoTests   → ne bloque pas si aucun test trouvé
@@ -105,7 +105,7 @@ pipeline {
             }
         }
 
-        // ─── DOCKER LOGIN ───────────────────────────────────────────────────────
+        // DOCKER LOGIN 
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -118,7 +118,7 @@ pipeline {
             }
         }
 
-        // ─── BUILD & PUSH Backend ───────────────────────────────────────────────
+        // BUILD & PUSH Backend 
         stage('Build & Push Backend Image') {
             steps {
                 dir('Deployement') {
@@ -128,7 +128,7 @@ pipeline {
             }
         }
 
-        // ─── BUILD & PUSH Frontend ──────────────────────────────────────────────
+        // BUILD & PUSH Frontend 
         stage('Build & Push Frontend Image') {
             steps {
                 dir('Deployement') {
@@ -141,10 +141,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Build, Tests & Push réussis pour le backend et le frontend !'
+            echo 'Build, Tests & Push réussis pour le backend et le frontend !'
         }
         failure {
-            echo '❌ Echec du pipeline. Vérifier les logs.'
+            echo 'Echec du pipeline. Vérifier les logs.'
         }
         always {
             bat 'docker logout'
