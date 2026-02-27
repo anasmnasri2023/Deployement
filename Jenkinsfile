@@ -98,15 +98,14 @@ pipeline {
 
         // SONARQUBE ANALYSIS
         stage('SonarQube Analysis') {
-            steps {
-                dir('Deployement') {
-                    withSonarQubeEnv('SonarQube') {
-                        bat 'npm install -g sonar-scanner'
-                        bat 'sonar-scanner -Dsonar.projectKey=e-learning -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqa_997a12eaa03c02fb920e5a8f90586f9edb11a537 -Dsonar.exclusions=**/node_modules/**'
-                    }
-                }
+    steps {
+        dir('Deployement') {
+            withSonarQubeEnv('SonarQube') {
+                bat '"C:\\sonar-scanner\\bin\\sonar-scanner.bat"'
             }
         }
+    }
+}
 
         // DOCKER LOGIN
         stage('Docker Login') {
