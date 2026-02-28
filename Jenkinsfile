@@ -103,7 +103,7 @@ pipeline {
                         bat '''
                             docker run --rm ^
                               -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
-                              -e SONAR_TOKEN=sqa_997a12eaa03c02fb920e5a8f90586f9edb11a537 ^
+                              -e SONAR_TOKEN=sqa_a7839850d920f1bc61c606c534f981710db5fc22 ^
                               -v %CD%:/usr/src ^
                               sonarsource/sonar-scanner-cli ^
                               -Dsonar.projectKey=e-learning ^
