@@ -16,21 +16,16 @@ spec:
     spec:
       containers:
         - name: elearning-backend
-          image: nouran10/elearning-backend:latest   # 🔁 remplace par ton image buildée
-          imagePullPolicy: Always
+          image: elearning-backend:latest  # ← ton image Docker
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
+          # ✅ Variables NON-sensibles (configmap)
+          envFrom:
+            - configMapRef:
+                name: elearning-configmap
+          # ✅ Variables SENSIBLES (secret)
           env:
-            - name: NODE_ENV
-              valueFrom:
-                configMapKeyRef:
-                  name: elearning-config
-                  key: NODE_ENV
-            - name: PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: elearning-config
-                  key: PORT
             - name: URL_MONGO
               valueFrom:
                 secretKeyRef:
@@ -51,23 +46,3 @@ spec:
                 secretKeyRef:
                   name: elearning-secret
                   key: EMAIL_PASS
-          readinessProbe:
-            httpGet:
-              path: /api/health      # adapte si tu as un endpoint /health
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          livenessProbe:
-            httpGet:
-              path: /api/health
-              port: 5000
-            initialDelaySeconds: 20
-            periodSeconds: 10
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      restartPolicy: Always
