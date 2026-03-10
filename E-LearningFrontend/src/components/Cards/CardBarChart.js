@@ -4,7 +4,7 @@ export default function UserStatsChart() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredBar, setHoveredBar] = useState(null);
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "/api";
 
   // Fonction pour récupérer les utilisateurs
   const fetchUsers = async () => {

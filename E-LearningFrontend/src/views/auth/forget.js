@@ -47,7 +47,7 @@ export default function ForgotPassword() {
     try {
       console.log("🔄 Envoi demande de réinitialisation pour:", formData.email);
 
-      const response = await fetch("http://localhost:5000/auth/forgot-password", {
+      const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +89,7 @@ export default function ForgotPassword() {
     setError("");
     
     try {
-      const response = await fetch("http://localhost:5000/auth/forgot-password", {
+      const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

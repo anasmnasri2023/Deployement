@@ -25,6 +25,8 @@ const app = express();
 // ✅ Configuration CORS - AJOUTEZ CETTE SECTION
 app.use(cors({
   origin: [
+    "http://192.168.1.118:30300",
+    /^\/\/192\.168\./,
     "http://localhost:3000",    // React dev server
     "http://localhost:3001",    // Port alternatif
     "http://127.0.0.1:3000"     // Alternative localhost

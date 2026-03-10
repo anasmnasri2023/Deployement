@@ -66,9 +66,9 @@ export default function Payment() {
   });
 
   // URLs de base pour l'API
-  const API_BASE_URL = "http://localhost:5000/payments";
-  const USERS_API_URL = "http://localhost:5000/users/getAllUsers";
-  const COURSES_API_URL = "http://localhost:5000/courses";
+  const API_BASE_URL = "/api/payments";
+  const USERS_API_URL = "/api/users/getAllUsers";
+  const COURSES_API_URL = "/api/courses";
 
   // Fonction pour récupérer le token d'authentification
   const getAuthHeaders = () => {

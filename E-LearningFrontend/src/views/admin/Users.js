@@ -60,7 +60,7 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "/api";
 
   // Function to fetch all users
   const fetchUsers = async () => {

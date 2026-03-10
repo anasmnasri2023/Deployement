@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-const API_BASE_URL = "http://localhost:5000/courses";
+const API_BASE_URL = "/api/courses";
 
 // Styles inline
 const styles = {
