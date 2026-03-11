@@ -14,17 +14,17 @@ spec:
       labels:
         app: elearning-backend
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
       containers:
         - name: elearning-backend
-          image: elearning-backend:latest  # ← ton image Docker
-          imagePullPolicy: IfNotPresent
+          image: anasmnasri/elearning-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
-          # ✅ Variables NON-sensibles (configmap)
           envFrom:
             - configMapRef:
                 name: elearning-configmap
-          # ✅ Variables SENSIBLES (secret)
           env:
             - name: URL_MONGO
               valueFrom:

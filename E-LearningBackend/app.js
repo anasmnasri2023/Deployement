@@ -24,20 +24,20 @@ const app = express();
 
 // ✅ Configuration CORS - AJOUTEZ CETTE SECTION
 app.use(cors({
-  origin: [
-    "http://localhost:3000",    // React dev server
-    "http://localhost:3001",    // Port alternatif
-    "http://127.0.0.1:3000"     // Alternative localhost
-  ],
+  origin: function(origin, callback) {
+    // Autorise toutes les origines en 192.168.x.x + localhost
+    if (!origin || 
+        origin.match(/^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/) ||
+        origin.match(/^http:\/\/localhost(:\d+)?$/) ||
+        origin.match(/^http:\/\/127\.0\.0\.1(:\d+)?$/)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: [
-    "Content-Type", 
-    "Authorization", 
-    "X-Requested-With",
-    "Accept",
-    "Origin"
-  ]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"]
 }));
 
 // --- Middlewares globaux ---

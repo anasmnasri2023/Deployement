@@ -4,7 +4,7 @@ import * as Chart from "chart.js";
 export default function CardLineChart() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "/api";
 
   // Fetch users from API
   const fetchUsers = async () => {

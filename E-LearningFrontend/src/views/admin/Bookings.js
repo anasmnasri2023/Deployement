@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/bookings";
-const USERS_API_URL = "http://localhost:5000/users/getAllUsers"; // Aligné avec Users.js
-const COURSES_API_URL = "http://localhost:5000/courses";
+const API_BASE_URL = "/api/bookings";
+const USERS_API_URL = "/api/users/getAllUsers"; // Aligné avec Users.js
+const COURSES_API_URL = "/api/courses";
 
 // Custom icon components
 const PlusIcon = () => (

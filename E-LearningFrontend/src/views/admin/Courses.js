@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.REACT_APP_API_URL || "/api";
 const API_BASE_URL = `${BASE_URL}/courses`;
 const TEACHERS_API_URL = `${BASE_URL}/users/getTeachers`;
 

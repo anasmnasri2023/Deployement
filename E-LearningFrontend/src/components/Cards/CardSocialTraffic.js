@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/bookings";
+const API_BASE_URL = "/api/bookings";
 
 // Icône pour les statistiques
 const TrendingUpIcon = () => (
