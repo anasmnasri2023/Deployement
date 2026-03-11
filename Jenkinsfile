@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_USERNAME = 'anasmnasri'
-        IMAGE_BACKEND   = "${DOCKER_USERNAME}/node-app"
-        IMAGE_FRONTEND  = "${DOCKER_USERNAME}/react-app"
+        IMAGE_BACKEND   = "${DOCKER_USERNAME}/elearning-backend"  // ✅ corrigé
+        IMAGE_FRONTEND  = "${DOCKER_USERNAME}/elearning-frontend" // ✅ corrigé
     }
 
     stages {
@@ -130,8 +130,8 @@ pipeline {
         stage('Build & Push Backend Image') {
             steps {
                 dir('Deployement') {
-                    bat 'docker build -t %IMAGE_BACKEND% ./E-LearningBackend'
-                    bat 'docker push %IMAGE_BACKEND%'
+                    bat 'docker build -t %IMAGE_BACKEND%:latest ./E-LearningBackend'
+                    bat 'docker push %IMAGE_BACKEND%:latest'
                 }
             }
         }
@@ -139,8 +139,23 @@ pipeline {
         stage('Build & Push Frontend Image') {
             steps {
                 dir('Deployement') {
-                    bat 'docker build -t %IMAGE_FRONTEND% ./E-LearningFrontend'
-                    bat 'docker push %IMAGE_FRONTEND%'
+                    bat 'docker build -t %IMAGE_FRONTEND%:latest ./E-LearningFrontend'
+                    bat 'docker push %IMAGE_FRONTEND%:latest'
+                }
+            }
+        }
+
+        // ✅ NOUVEAU — Deploy Kubernetes
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('Deployement/kubernetes') {
+                    withKubeConfig([credentialsId: 'kubeconfig-elearning']) {
+                        bat 'kubectl apply -f . --validate=false'
+                        bat 'kubectl rollout restart deployment/elearning-backend'
+                        bat 'kubectl rollout restart deployment/elearning-frontend'
+                        bat 'kubectl rollout status deployment/elearning-backend --timeout=120s'
+                        bat 'kubectl rollout status deployment/elearning-frontend --timeout=120s'
+                    }
                 }
             }
         }
@@ -148,10 +163,10 @@ pipeline {
 
     post {
         success {
-            echo 'Build, Tests & Push réussis pour le backend et le frontend !'
+            echo '✅ Build, Tests, Push et Deploy réussis !'
         }
         failure {
-            echo 'Echec du pipeline. Vérifier les logs.'
+            echo '❌ Echec du pipeline. Vérifier les logs.'
         }
         always {
             bat 'docker logout'
