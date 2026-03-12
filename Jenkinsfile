@@ -97,23 +97,23 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            steps {
-                dir('Deployement') {
-                    withSonarQubeEnv('SonarQube') {
-                        bat '''
-                            docker run --rm ^
-                              -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
-                              -e SONAR_TOKEN=sqa_a7839850d920f1bc61c606c534f981710db5fc22 ^
-                              -v %CD%:/usr/src ^
-                              sonarsource/sonar-scanner-cli ^
-                              -Dsonar.projectKey=e-learning ^
-                              -Dsonar.sources=E-LearningBackend,E-LearningFrontend ^
-                              -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
-                        '''
-                    }
-                }
+    steps {
+        dir('Deployement') {
+            withSonarQubeEnv('SonarQube') {
+                bat '''
+                docker run --rm ^
+                  -e SONAR_HOST_URL=%SONAR_HOST_URL% ^
+                  -e SONAR_TOKEN=%SONAR_AUTH_TOKEN% ^
+                  -v %CD%:/usr/src ^
+                  sonarsource/sonar-scanner-cli ^
+                  -Dsonar.projectKey=e-learning ^
+                  -Dsonar.sources=E-LearningBackend,E-LearningFrontend ^
+                  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
+                '''
             }
         }
+    }
+}
 
         stage('Docker Login') {
             steps {
