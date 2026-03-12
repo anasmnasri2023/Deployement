@@ -103,8 +103,7 @@ pipeline {
                 bat '''
                 docker run --rm ^
                   --memory=4g ^
-                  --memory-swap=4g ^
-                  -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
+                  -e SONAR_HOST_URL=http://172.29.80.1:9000 ^
                   -e SONAR_TOKEN=%SONAR_TOKEN% ^
                   -e SONAR_SCANNER_OPTS="-Xmx2048m" ^
                   -v %CD%:/usr/src ^
