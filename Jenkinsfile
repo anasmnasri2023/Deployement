@@ -102,19 +102,22 @@ pipeline {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                 bat '''
                 docker run --rm ^
+                  --memory=4g ^
+                  --memory-swap=4g ^
                   -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
                   -e SONAR_TOKEN=%SONAR_TOKEN% ^
+                  -e SONAR_SCANNER_OPTS="-Xmx2048m" ^
                   -v %CD%:/usr/src ^
                   sonarsource/sonar-scanner-cli ^
                   -Dsonar.projectKey=e-learning ^
                   -Dsonar.sources=E-LearningBackend,E-LearningFrontend ^
-                  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
+                  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/** ^
+                  -Dsonar.javascript.node.maxspace=2048
                 '''
             }
         }
     }
 }
-
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
