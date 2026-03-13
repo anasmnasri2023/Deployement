@@ -152,18 +152,18 @@ pipeline {
 
         // ✅ NOUVEAU — Deploy Kubernetes
         stage('Deploy to Kubernetes') {
-            steps {
-                dir('Deployement/kubernetes') {
-                    withKubeConfig([credentialsId: 'kubeconfig-elearning']) {
-                        bat 'kubectl apply -f . --validate=false'
-                        bat 'kubectl rollout restart deployment/elearning-backend'
-                        bat 'kubectl rollout restart deployment/elearning-frontend'
-                        bat 'kubectl rollout status deployment/elearning-backend --timeout=120s'
-                        bat 'kubectl rollout status deployment/elearning-frontend --timeout=120s'
-                    }
-                }
+    steps {
+        dir('Deployement/kubernetes') {
+            withCredentials([file(credentialsId: 'kubeconfig-k8s-file', variable: 'KUBECONFIG')]) {
+                bat 'set KUBECONFIG=%KUBECONFIG% && kubectl apply -f . --validate=false'
+                bat 'set KUBECONFIG=%KUBECONFIG% && kubectl rollout restart deployment/elearning-backend'
+                bat 'set KUBECONFIG=%KUBECONFIG% && kubectl rollout restart deployment/elearning-frontend'
+                bat 'set KUBECONFIG=%KUBECONFIG% && kubectl rollout status deployment/elearning-backend --timeout=120s'
+                bat 'set KUBECONFIG=%KUBECONFIG% && kubectl rollout status deployment/elearning-frontend --timeout=120s'
             }
         }
+    }
+}
     }
 
     post {
