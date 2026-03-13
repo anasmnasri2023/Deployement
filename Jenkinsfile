@@ -125,16 +125,16 @@ docker run --rm ^
     }
 }
         stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'anasmnasri',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
-                }
-            }
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'anasmnasri',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+            bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
         }
+    }
+}
 
         stage('Build & Push Backend Image') {
             steps {
