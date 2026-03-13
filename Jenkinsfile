@@ -97,24 +97,28 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+    options {
+        timeout(time: 10, unit: 'MINUTES')
+    }
     steps {
         dir('Deployement') {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                 bat '''
 docker run --rm ^
-  --memory=1g ^
-  --memory-swap=3g ^
+  --memory=2g ^
+  --memory-swap=4g ^
   --network=container:sonarqube ^
   -e SONAR_HOST_URL=http://localhost:9000 ^
   -e SONAR_TOKEN=%SONAR_TOKEN% ^
-  -e SONAR_SCANNER_OPTS="-Xmx512m -Xms128m" ^
+  -e SONAR_SCANNER_OPTS="-Xmx1536m -Xms256m" ^
   -v %CD%:/usr/src ^
   sonarsource/sonar-scanner-cli ^
   -Dsonar.projectKey=e-learning ^
+  -Dsonar.projectBaseDir=/usr/src ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend ^
-  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/** ^
-  -Dsonar.javascript.node.maxspace=512 ^
-  -Dsonar.javascript.maxFileSize=500
+  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.conf,**/package-lock.json,**/yarn.lock ^
+  -Dsonar.javascript.node.maxspace=1024 ^
+  -Dsonar.javascript.maxFileSize=1000
 '''
             }
         }
