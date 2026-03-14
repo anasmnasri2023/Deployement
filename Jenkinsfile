@@ -105,14 +105,17 @@ pipeline {
         }  // ✅ accolade fermante ajoutée
 
         stage('SonarQube Analysis') {
-            options {
-                timeout(time: 20, unit: 'MINUTES')
-            }
-            steps {
-                dir('Deployement') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        bat 'docker start sonarqube || echo SonarQube deja en cours'
-                        bat '''
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
+    steps {
+        dir('Deployement') {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                // 1. Démarrer SonarQube
+                bat 'docker start sonarqube || echo SonarQube deja en cours'
+
+                // 2. Attendre que SonarQube soit prêt
+                bat '''
 :wait_sonar
 curl -s -o nul -w "%%{http_code}" http://localhost:9000/api/system/status | findstr "200" >nul
 if errorlevel 1 (
@@ -122,29 +125,24 @@ if errorlevel 1 (
 )
 echo SonarQube est pret!
 '''
-                        bat '''
-docker run --rm ^
-  --memory=8g ^
-  --memory-swap=16g ^
-  --network=container:sonarqube ^
-  -e SONAR_HOST_URL=http://localhost:9000 ^
-  -e SONAR_TOKEN=%SONAR_TOKEN% ^
-  -e SONAR_SCANNER_OPTS="-Xmx2048m -Xms512m" ^
-  -v %CD%:/usr/src ^
-  sonarsource/sonar-scanner-cli ^
+                // 3. Lancer le scan natif (sans Docker)
+                bat '''
+sonar-scanner ^
   -Dsonar.projectKey=e-learning ^
-  -Dsonar.projectBaseDir=/usr/src ^
+  -Dsonar.projectBaseDir=%CD% ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend/src ^
   -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.conf,**/package-lock.json,**/yarn.lock,**/*.min.js,**/coverage/** ^
   -Dsonar.javascript.lcov.reportPaths=E-LearningFrontend/coverage/lcov.info,E-LearningBackend/coverage/lcov.info ^
   -Dsonar.javascript.node.maxspace=2048 ^
   -Dsonar.javascript.maxFileSize=500 ^
-  -Dsonar.scm.disabled=true
+  -Dsonar.scm.disabled=true ^
+  -Dsonar.host.url=http://localhost:9000 ^
+  -Dsonar.token=%SONAR_TOKEN%
 '''
-                    }
-                }
             }
-        }  // ✅ accolade fermante ajoutée + saut de ligne avant le stage suivant
+        }
+    }
+}  // ✅ accolade fermante ajoutée + saut de ligne avant le stage suivant
 
         stage('Docker Login') {
             steps {
