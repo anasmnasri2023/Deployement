@@ -111,6 +111,21 @@ stage('SonarQube Analysis') {
     steps {
         dir('Deployement') {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                // ✅ 1. S'assurer que SonarQube est démarré
+                bat 'docker start sonarqube || echo SonarQube deja en cours'
+                
+                // ✅ 2. Attendre que SonarQube soit prêt
+                bat '''
+:wait_sonar
+curl -s -o nul -w "%%{http_code}" http://localhost:9000/api/system/status | findstr "200" >nul
+if errorlevel 1 (
+    echo Attente SonarQube...
+    timeout /t 10 /nobreak >nul
+    goto wait_sonar
+)
+echo SonarQube est pret!
+'''
+                // ✅ 3. Lancer le scan
                 bat '''
 docker run --rm ^
   --memory=8g ^
@@ -133,8 +148,7 @@ docker run --rm ^
             }
         }
     }
-}
-        stage('Docker Login') {
+}  stage('Docker Login') {
     steps {
         withCredentials([usernamePassword(
             credentialsId: 'anasmnasri',
