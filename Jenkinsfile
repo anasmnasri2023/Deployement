@@ -106,29 +106,27 @@ stage('Test Frontend') {
 
 stage('SonarQube Analysis') {
     options {
-        timeout(time: 15, unit: 'MINUTES')  // ✅ Timeout augmenté
+        timeout(time: 20, unit: 'MINUTES')
     }
     steps {
         dir('Deployement') {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                 bat '''
 docker run --rm ^
-  --memory=3g ^
-  --memory-swap=6g ^
+  --memory=4g ^
+  --memory-swap=8g ^
   --network=container:sonarqube ^
   -e SONAR_HOST_URL=http://localhost:9000 ^
   -e SONAR_TOKEN=%SONAR_TOKEN% ^
-  -e SONAR_SCANNER_OPTS="-Xmx2048m -Xms512m" ^
+  -e SONAR_SCANNER_OPTS="-Xmx3072m -Xms1024m" ^
   -v %CD%:/usr/src ^
   sonarsource/sonar-scanner-cli ^
   -Dsonar.projectKey=e-learning ^
   -Dsonar.projectBaseDir=/usr/src ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend/src ^
-  -Dsonar.tests=E-LearningBackend/test,E-LearningFrontend/src ^
-  -Dsonar.test.inclusions=**/*.test.js,**/*.spec.js ^
   -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.conf,**/package-lock.json,**/yarn.lock,**/*.min.js,**/coverage/** ^
   -Dsonar.javascript.lcov.reportPaths=E-LearningFrontend/coverage/lcov.info,E-LearningBackend/coverage/lcov.info ^
-  -Dsonar.javascript.node.maxspace=2048 ^
+  -Dsonar.javascript.node.maxspace=3072 ^
   -Dsonar.javascript.maxFileSize=500 ^
   -Dsonar.scm.disabled=true
 '''
