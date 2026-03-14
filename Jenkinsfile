@@ -105,41 +105,39 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            options {
-                timeout(time: 20, unit: 'MINUTES')
-            }
-            steps {
-                dir('Deployement') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
+    steps {
+        dir('Deployement') {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
 
-                        // 1. Demarrer Docker Desktop si pas en cours ✅ NOUVEAU
-                        bat '''
+                // 1. Demarrer Docker Desktop si pas en cours
+                bat '''
 docker info >nul 2>&1
 if errorlevel 1 (
     echo Demarrage Docker Desktop...
     start "" "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"
-    timeout /t 30 /nobreak >nul
+    ping -n 31 127.0.0.1 >nul
 )
 echo Docker est pret!
 '''
-                        // 2. Demarrer SonarQube ✅ CORRIGE : ignore exit code
-                        bat '''
-docker start sonarqube >nul 2>&1
-echo SonarQube demarre...
-'''
-                        // 3. Attendre que SonarQube soit pret
-                        bat '''
+                // 2. Demarrer SonarQube
+                bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
+
+                // 3. Attendre que SonarQube soit pret
+                bat '''
 :wait_sonar
 curl -s -o nul -w "%%{http_code}" http://localhost:9000/api/system/status | findstr "200" >nul
 if errorlevel 1 (
     echo Attente SonarQube...
-    timeout /t 10 /nobreak >nul
+    ping -n 11 127.0.0.1 >nul
     goto wait_sonar
 )
 echo SonarQube est pret!
 '''
-                        // 4. Lancer le scan natif ✅ CORRIGE : sonar-scanner.bat
-                        bat '''
+                // 4. Lancer le scan
+                bat '''
 sonar-scanner.bat ^
   -Dsonar.projectKey=e-learning ^
   -Dsonar.projectBaseDir=%CD% ^
@@ -152,10 +150,10 @@ sonar-scanner.bat ^
   -Dsonar.host.url=http://localhost:9000 ^
   -Dsonar.token=%SONAR_TOKEN%
 '''
-                    }
-                }
             }
         }
+    }
+}
 
         stage('Docker Login') {
             steps {
