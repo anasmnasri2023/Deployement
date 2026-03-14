@@ -113,12 +113,12 @@ stage('SonarQube Analysis') {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                 bat '''
 docker run --rm ^
-  --memory=4g ^
-  --memory-swap=8g ^
+  --memory=8g ^
+  --memory-swap=16g ^
   --network=container:sonarqube ^
   -e SONAR_HOST_URL=http://localhost:9000 ^
   -e SONAR_TOKEN=%SONAR_TOKEN% ^
-  -e SONAR_SCANNER_OPTS="-Xmx3072m -Xms1024m" ^
+  -e SONAR_SCANNER_OPTS="-Xmx2048m -Xms512m" ^
   -v %CD%:/usr/src ^
   sonarsource/sonar-scanner-cli ^
   -Dsonar.projectKey=e-learning ^
@@ -126,7 +126,7 @@ docker run --rm ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend/src ^
   -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.conf,**/package-lock.json,**/yarn.lock,**/*.min.js,**/coverage/** ^
   -Dsonar.javascript.lcov.reportPaths=E-LearningFrontend/coverage/lcov.info,E-LearningBackend/coverage/lcov.info ^
-  -Dsonar.javascript.node.maxspace=3072 ^
+  -Dsonar.javascript.node.maxspace=2048 ^
   -Dsonar.javascript.maxFileSize=500 ^
   -Dsonar.scm.disabled=true
 '''
