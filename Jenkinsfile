@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_USERNAME = 'anasmnasri'
-        IMAGE_BACKEND   = "${DOCKER_USERNAME}/elearning-backend"  // ✅ corrigé
-        IMAGE_FRONTEND  = "${DOCKER_USERNAME}/elearning-frontend" // ✅ corrigé
+        IMAGE_BACKEND   = "${DOCKER_USERNAME}/elearning-backend"
+        IMAGE_FRONTEND  = "${DOCKER_USERNAME}/elearning-frontend"
     }
 
     stages {
@@ -22,100 +22,97 @@ pipeline {
         }
 
         stage('Install & Cache Backend') {
-    steps {
-        dir('Deployement/E-LearningBackend') {
-            script {
-                def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
-                def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningBackend\\node_modules"
-                if (fileExists(cacheDir)) {
-                    echo "Cache Backend trouvé — restauration..."
-                    bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
-                } else {
-                    echo "Pas de cache — installation complète..."
-                }
-            }
-            bat 'npm install'
-            bat 'npm install --save-dev mocha chai nyc supertest'  // ✅ Ajout de nyc et supertest
-            script {
-                def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
-                bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                echo "Cache Backend sauvegardé"
-            }
-        }
-    }
-}
-
-stage('Test Backend') {
-    steps {
-        dir('Deployement/E-LearningBackend') {
-            script {
-                def hasTestFiles = bat(
-                    script: 'if exist test\\ (exit 0) else (exit 1)',
-                    returnStatus: true
-                )
-                if (hasTestFiles == 0) {
-                    echo "Lancement des tests Mocha & Chai avec couverture..."
-                    bat 'npm run test:coverage'  // ✅ Génère coverage/lcov.info
-                } else {
-                    echo "⚠️ Aucun dossier test/ trouvé — création d'un test minimal..."
-                    bat 'mkdir test'
-                    bat 'echo const chai = require("chai"); > test\\dummy.test.js'
-                    bat 'echo const expect = chai.expect; >> test\\dummy.test.js'
-                    bat 'echo describe("Dummy", () =^> { >> test\\dummy.test.js'
-                    bat 'echo   it("should pass", () =^> { expect(true).to.be.true; }); >> test\\dummy.test.js'
-                    bat 'echo }); >> test\\dummy.test.js'
-                    bat 'npm run test:coverage'
+            steps {
+                dir('Deployement/E-LearningBackend') {
+                    script {
+                        def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
+                        def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningBackend\\node_modules"
+                        if (fileExists(cacheDir)) {
+                            echo "Cache Backend trouvé — restauration..."
+                            bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
+                        } else {
+                            echo "Pas de cache — installation complète..."
+                        }
+                    }
+                    bat 'npm install'
+                    bat 'npm install --save-dev mocha chai nyc supertest'
+                    script {
+                        def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
+                        bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
+                        echo "Cache Backend sauvegardé"
+                    }
                 }
             }
         }
-    }
-}
 
-stage('Install & Cache Frontend') {
-    steps {
-        dir('Deployement/E-LearningFrontend') {
-            script {
-                def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
-                def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningFrontend\\node_modules"
-                if (fileExists(cacheDir)) {
-                    echo "Cache Frontend trouvé — restauration..."
-                    bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
-                } else {
-                    echo "Pas de cache — installation complète..."
+        stage('Test Backend') {
+            steps {
+                dir('Deployement/E-LearningBackend') {
+                    script {
+                        def hasTestFiles = bat(
+                            script: 'if exist test\\ (exit 0) else (exit 1)',
+                            returnStatus: true
+                        )
+                        if (hasTestFiles == 0) {
+                            echo "Lancement des tests Mocha & Chai avec couverture..."
+                            bat 'npm run test:coverage'
+                        } else {
+                            echo "Aucun dossier test/ trouvé — création d'un test minimal..."
+                            bat 'mkdir test'
+                            bat 'echo const chai = require("chai"); > test\\dummy.test.js'
+                            bat 'echo const expect = chai.expect; >> test\\dummy.test.js'
+                            bat 'echo describe("Dummy", () =^> { >> test\\dummy.test.js'
+                            bat 'echo   it("should pass", () =^> { expect(true).to.be.true; }); >> test\\dummy.test.js'
+                            bat 'echo }); >> test\\dummy.test.js'
+                            bat 'npm run test:coverage'
+                        }
+                    }
                 }
             }
-            bat 'npm install'
-            bat 'npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event'  // ✅ Dépendances de test
-            script {
-                def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
-                bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                echo "Cache Frontend sauvegardé"
+        }
+
+        stage('Install & Cache Frontend') {
+            steps {
+                dir('Deployement/E-LearningFrontend') {
+                    script {
+                        def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
+                        def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningFrontend\\node_modules"
+                        if (fileExists(cacheDir)) {
+                            echo "Cache Frontend trouvé — restauration..."
+                            bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
+                        } else {
+                            echo "Pas de cache — installation complète..."
+                        }
+                    }
+                    bat 'npm install'
+                    bat 'npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event'
+                    script {
+                        def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
+                        bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
+                        echo "Cache Frontend sauvegardé"
+                    }
+                }
             }
         }
-    }
-}
 
-stage('Test Frontend') {
-    steps {
-        dir('Deployement/E-LearningFrontend') {
-            echo "Lancement des tests Jest avec couverture..."
-            bat 'set CI=true && npm run test:coverage'  // ✅ Génère coverage/lcov.info
-        }
-    }
-}
+        stage('Test Frontend') {
+            steps {
+                dir('Deployement/E-LearningFrontend') {
+                    echo "Lancement des tests Jest avec couverture..."
+                    bat 'set CI=true && npm run test:coverage'
+                }
+            }
+        }  // ✅ accolade fermante ajoutée
 
-stage('SonarQube Analysis') {
-    options {
-        timeout(time: 20, unit: 'MINUTES')
-    }
-    steps {
-        dir('Deployement') {
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                // ✅ 1. S'assurer que SonarQube est démarré
-                bat 'docker start sonarqube || echo SonarQube deja en cours'
-                
-                // ✅ 2. Attendre que SonarQube soit prêt
-                bat '''
+        stage('SonarQube Analysis') {
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
+            steps {
+                dir('Deployement') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        bat 'docker start sonarqube || echo SonarQube deja en cours'
+                        bat '''
 :wait_sonar
 curl -s -o nul -w "%%{http_code}" http://localhost:9000/api/system/status | findstr "200" >nul
 if errorlevel 1 (
@@ -125,8 +122,7 @@ if errorlevel 1 (
 )
 echo SonarQube est pret!
 '''
-                // ✅ 3. Lancer le scan
-                bat '''
+                        bat '''
 docker run --rm ^
   --memory=8g ^
   --memory-swap=16g ^
@@ -145,20 +141,22 @@ docker run --rm ^
   -Dsonar.javascript.maxFileSize=500 ^
   -Dsonar.scm.disabled=true
 '''
+                    }
+                }
+            }
+        }  // ✅ accolade fermante ajoutée + saut de ligne avant le stage suivant
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'anasmnasri',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                }
             }
         }
-    }
-}  stage('Docker Login') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'anasmnasri',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-            bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
-        }
-    }
-}
 
         stage('Build & Push Backend Image') {
             steps {
@@ -178,29 +176,29 @@ docker run --rm ^
             }
         }
 
-        // ✅ NOUVEAU — Deploy Kubernetes
-    stage('Deploy to Kubernetes') {
-    steps {
-        withCredentials([sshUserPrivateKey(
-            credentialsId: 'k8s-master-ssh',
-            keyFileVariable: 'SSH_KEY'
-        )]) {
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl apply -f ~/kubernetes/ --validate=false"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-backend"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-frontend"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'k8s-master-ssh',
+                    keyFileVariable: 'SSH_KEY'
+                )]) {
+                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl apply -f ~/kubernetes/ --validate=false"'
+                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-backend"'
+                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-frontend"'
+                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
+                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
+                }
+            }
         }
-    }
-}
+
     }
 
     post {
         success {
-            echo '✅ Build, Tests, Push et Deploy réussis !'
+            echo 'Build, Tests, Push et Deploy réussis !'
         }
         failure {
-            echo '❌ Echec du pipeline. Vérifier les logs.'
+            echo 'Echec du pipeline. Vérifier les logs.'
         }
         always {
             bat 'docker logout'
