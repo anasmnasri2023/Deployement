@@ -28,10 +28,10 @@ pipeline {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningBackend\\node_modules"
                         if (fileExists(cacheDir)) {
-                            echo "Cache Backend trouvé — restauration..."
+                            echo "Cache Backend trouve — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
                         } else {
-                            echo "Pas de cache — installation complète..."
+                            echo "Pas de cache — installation complete..."
                         }
                     }
                     bat 'npm install'
@@ -39,7 +39,7 @@ pipeline {
                     script {
                         def cacheDir = "C:\\jenkins-cache\\backend-node_modules"
                         bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                        echo "Cache Backend sauvegardé"
+                        echo "Cache Backend sauvegarde"
                     }
                 }
             }
@@ -57,7 +57,7 @@ pipeline {
                             echo "Lancement des tests Mocha & Chai avec couverture..."
                             bat 'npm run test:coverage'
                         } else {
-                            echo "Aucun dossier test/ trouvé — création d'un test minimal..."
+                            echo "Aucun dossier test/ trouve — creation d un test minimal..."
                             bat 'mkdir test'
                             bat 'echo const chai = require("chai"); > test\\dummy.test.js'
                             bat 'echo const expect = chai.expect; >> test\\dummy.test.js'
@@ -78,10 +78,10 @@ pipeline {
                         def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
                         def targetDir = "${env.WORKSPACE}\\Deployement\\E-LearningFrontend\\node_modules"
                         if (fileExists(cacheDir)) {
-                            echo "Cache Frontend trouvé — restauration..."
+                            echo "Cache Frontend trouve — restauration..."
                             bat "xcopy /E /I /Y /Q \"${cacheDir}\" \"${targetDir}\""
                         } else {
-                            echo "Pas de cache — installation complète..."
+                            echo "Pas de cache — installation complete..."
                         }
                     }
                     bat 'npm install'
@@ -89,7 +89,7 @@ pipeline {
                     script {
                         def cacheDir = "C:\\jenkins-cache\\frontend-node_modules"
                         bat "xcopy /E /I /Y /Q \"node_modules\" \"${cacheDir}\""
-                        echo "Cache Frontend sauvegardé"
+                        echo "Cache Frontend sauvegarde"
                     }
                 }
             }
@@ -102,54 +102,32 @@ pipeline {
                     bat 'set CI=true && npm run test:coverage'
                 }
             }
-        }  // ✅ accolade fermante ajoutée
+        }
 
         stage('SonarQube Analysis') {
-    options {
-        timeout(time: 20, unit: 'MINUTES')
-    }
-    steps {
-        dir('Deployement') {
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-
-                // 1. Demarrer SonarQube
-                bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
-
-                // 2. Attendre que SonarQube soit pret
-                bat '''
-set RETRY=0
-:wait_sonar
-set /a RETRY+=1
-if %RETRY% GTR 24 (
-    echo ERREUR: SonarQube non disponible apres 4 minutes
-    exit /b 1
-)
-echo Tentative %RETRY%/24 - Attente SonarQube...
-curl -s http://localhost:9000/api/system/status | findstr "UP" >nul
-if errorlevel 1 (
-    ping -n 11 127.0.0.1 >nul
-    goto wait_sonar
-)
-echo SonarQube est pret!
-'''
-                // 3. Lancer le scan natif
-                bat '''
+            steps {
+                dir('Deployement') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
+                        bat 'ping -n 60 127.0.0.1 >nul && echo Attente 60s SonarQube...'
+                        bat """
 sonar-scanner.bat ^
   -Dsonar.projectKey=e-learning ^
+  -Dsonar.host.url=http://localhost:9000 ^
+  -Dsonar.token=%SONAR_TOKEN% ^
   -Dsonar.projectBaseDir=%CD% ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend/src ^
   -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.conf,**/package-lock.json,**/yarn.lock,**/*.min.js,**/coverage/** ^
   -Dsonar.javascript.lcov.reportPaths=E-LearningFrontend/coverage/lcov.info,E-LearningBackend/coverage/lcov.info ^
   -Dsonar.javascript.node.maxspace=2048 ^
   -Dsonar.javascript.maxFileSize=500 ^
-  -Dsonar.scm.disabled=true ^
-  -Dsonar.host.url=http://localhost:9000 ^
-  -Dsonar.token=%SONAR_TOKEN%
-'''
+  -Dsonar.scm.disabled=true
+"""
+                    }
+                }
             }
         }
-    }
-}
+
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -194,15 +172,14 @@ sonar-scanner.bat ^
                 }
             }
         }
-
     }
 
     post {
         success {
-            echo 'Build, Tests, Push et Deploy réussis !'
+            echo 'Build, Tests, Push et Deploy reussis !'
         }
         failure {
-            echo 'Echec du pipeline. Vérifier les logs.'
+            echo 'Echec du pipeline. Verifier les logs.'
         }
         always {
             bat 'docker logout'
