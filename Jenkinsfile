@@ -159,19 +159,19 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'k8s-master-ssh',
-                    keyFileVariable: 'SSH_KEY'
-                )]) {
-                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl apply -f ~/kubernetes/ --validate=false"'
-                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-backend"'
-                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout restart deployment/elearning-frontend"'
-                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
-                    bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.48.45 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
-                }
-            }
+    steps {
+        withCredentials([sshUserPrivateKey(
+            credentialsId: 'k8s-master-ssh',
+            keyFileVariable: 'SSH_KEY'
+        )]) {
+            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl apply -f ~/kubernetes/ --validate=false"'
+            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout restart deployment/elearning-backend"'
+            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout restart deployment/elearning-frontend"'
+            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
+            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
         }
+    }
+}
     }
 
     post {
