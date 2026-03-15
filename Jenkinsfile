@@ -105,12 +105,13 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            steps {
-                dir('Deployement') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
-                        bat 'ping -n 60 127.0.0.1 >nul && echo Attente 60s SonarQube...'
-                        bat """
+    steps {
+        dir('Deployement') {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
+                bat 'ping -n 60 127.0.0.1 >nul'
+                bat 'echo Attente 60s terminee - Lancement du scan...'
+                bat '''
 sonar-scanner.bat ^
   -Dsonar.projectKey=e-learning ^
   -Dsonar.host.url=http://localhost:9000 ^
@@ -122,11 +123,11 @@ sonar-scanner.bat ^
   -Dsonar.javascript.node.maxspace=2048 ^
   -Dsonar.javascript.maxFileSize=500 ^
   -Dsonar.scm.disabled=true
-"""
-                    }
-                }
+'''
             }
         }
+    }
+}
 
         stage('Docker Login') {
             steps {
