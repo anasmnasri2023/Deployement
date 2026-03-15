@@ -111,23 +111,30 @@ pipeline {
     steps {
         dir('Deployement') {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                // 1. Démarrer SonarQube
-                bat 'docker start sonarqube || echo SonarQube deja en cours'
 
-                // 2. Attendre que SonarQube soit prêt
+                // 1. Demarrer SonarQube
+                bat 'docker start sonarqube >nul 2>&1 & echo SonarQube demarre...'
+
+                // 2. Attendre que SonarQube soit pret
                 bat '''
+set RETRY=0
 :wait_sonar
-curl -s -o nul -w "%%{http_code}" http://localhost:9000/api/system/status | findstr "200" >nul
+set /a RETRY+=1
+if %RETRY% GTR 24 (
+    echo ERREUR: SonarQube non disponible apres 4 minutes
+    exit /b 1
+)
+echo Tentative %RETRY%/24 - Attente SonarQube...
+curl -s http://localhost:9000/api/system/status | findstr "UP" >nul
 if errorlevel 1 (
-    echo Attente SonarQube...
-    timeout /t 10 /nobreak >nul
+    ping -n 11 127.0.0.1 >nul
     goto wait_sonar
 )
 echo SonarQube est pret!
 '''
-                // 3. Lancer le scan natif (sans Docker)
+                // 3. Lancer le scan natif
                 bat '''
-sonar-scanner ^
+sonar-scanner.bat ^
   -Dsonar.projectKey=e-learning ^
   -Dsonar.projectBaseDir=%CD% ^
   -Dsonar.sources=E-LearningBackend,E-LearningFrontend/src ^
@@ -142,8 +149,7 @@ sonar-scanner ^
             }
         }
     }
-}  // ✅ accolade fermante ajoutée + saut de ligne avant le stage suivant
-
+}
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
