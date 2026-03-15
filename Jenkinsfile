@@ -167,8 +167,14 @@ pipeline {
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl apply -f ~/Desktop/Deployement/kubernetes/ --validate=false"'
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-backend"'
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-frontend"'
-            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-backend --timeout=300s" || echo Deploy continue...'
-            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-frontend --timeout=300s" || echo Deploy continue...'
+            bat '''
+ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-backend --timeout=300s"
+exit 0
+'''
+            bat '''
+ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-frontend --timeout=300s"
+exit 0
+'''
         }
     }
 }
