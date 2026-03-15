@@ -164,7 +164,7 @@ pipeline {
             credentialsId: 'k8s-master-ssh',
             keyFileVariable: 'SSH_KEY'
         )]) {
-            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl apply -f ~/kubernetes/ --validate=false"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl apply -f ~/Desktop/Deployement/kubernetes/ --validate=false"'
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-backend"'
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-frontend"'
             bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
