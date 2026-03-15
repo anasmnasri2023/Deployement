@@ -112,7 +112,7 @@ pipeline {
                 bat 'ping -n 60 127.0.0.1 >nul'
                 bat 'echo Attente 60s terminee - Lancement du scan...'
                 bat '''
-sonar-scanner.bat ^
+"C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" ^
   -Dsonar.projectKey=e-learning ^
   -Dsonar.host.url=http://localhost:9000 ^
   -Dsonar.token=%SONAR_TOKEN% ^
@@ -128,7 +128,6 @@ sonar-scanner.bat ^
         }
     }
 }
-
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
