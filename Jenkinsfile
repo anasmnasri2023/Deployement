@@ -164,11 +164,11 @@ pipeline {
             credentialsId: 'k8s-master-ssh',
             keyFileVariable: 'SSH_KEY'
         )]) {
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl apply -f ~/kubernetes/ --validate=false"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout restart deployment/elearning-backend"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout restart deployment/elearning-frontend"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
-            bat 'ssh -i %SSH_KEY% -o StrictHostKeyChecking=no anas@192.168.1.118 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl apply -f ~/kubernetes/ --validate=false"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-backend"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout restart deployment/elearning-frontend"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-backend --timeout=120s"'
+            bat 'ssh -i %SSH_KEY% -p 2222 -o StrictHostKeyChecking=no anas@127.0.0.1 "kubectl rollout status deployment/elearning-frontend --timeout=120s"'
         }
     }
 }
