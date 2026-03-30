@@ -37,7 +37,7 @@ export default function CardLineChart() {
       const months = [];
       const currentDate = new Date();
       
-      for (let i = 6; i >= 0; i--) {
+      for (let i = 18; i >= 0; i--) {
         const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
         months.push({
           name: date.toLocaleDateString('en-US', { month: 'long' }),
