@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
 const generateToken = require("../utils/generateToken");
-const emailService = require("../service/emailService");
+const emailService = require("./emailService");
 
 class AuthService {
   

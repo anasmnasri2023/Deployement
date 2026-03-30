@@ -4,28 +4,44 @@ export default function UserStatsChart() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredBar, setHoveredBar] = useState(null);
-  const API_BASE_URL = "/api";
+  const API_BASE_URL = "http://localhost:5000";
 
   // Fonction pour récupérer les utilisateurs
   const fetchUsers = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/getAllUsers`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        const adaptedUsers = data.UserList.map(user => ({
-          id: user._id,
-          status: user.isBloked ? "Blocked" : (user.statu ? "Active" : "Inactive"),
-          joinDate: user.createdAt ? new Date(user.createdAt) : new Date()
-        }));
-        setUsers(adaptedUsers);
-      }
-    } catch (error) {
-      console.error("Error loading users:", error);
-    } finally {
-      setLoading(false);
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/getAllUsers`);
+    const data = await response.json();
+
+    console.log("API RESPONSE:", data);
+
+    // ✅ Corrige ici (supporte tous les cas)
+    const usersArray = data.UserList || data.users || data;
+
+    if (!Array.isArray(usersArray)) {
+      console.error("Data is not an array:", usersArray);
+      return;
     }
-  };
+
+    const adaptedUsers = usersArray.map(user => ({
+      id: user._id,
+      status: user.isBloked
+        ? "Blocked"
+        : user.statu
+        ? "Active"
+        : "Inactive",
+      joinDate: user.createdAt ? new Date(user.createdAt) : new Date()
+    }));
+
+    console.log("ADAPTED USERS:", adaptedUsers);
+
+    setUsers(adaptedUsers);
+
+  } catch (error) {
+    console.error("Error loading users:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchUsers();

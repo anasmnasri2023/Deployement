@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-const API_BASE_URL = "/api/courses";
+const API_BASE_URL = "http://localhost:5000/courses";
 
 export default function CardPageVisits() {
   const [data, setData] = useState([]);
