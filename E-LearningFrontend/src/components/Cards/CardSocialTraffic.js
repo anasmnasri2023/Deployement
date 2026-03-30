@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE_URL = "/api/bookings";
-
+const API_BASE_URL = "http://localhost:5000/bookings";
 // Icône pour les statistiques
 const TrendingUpIcon = () => (
   <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

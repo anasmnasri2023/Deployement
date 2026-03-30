@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "/api";
+const API_URL = "http://localhost:5000";
 
 // Composant Chat principal
 const ChatApp = () => {
@@ -29,7 +29,7 @@ const ChatApp = () => {
   // Test de connexion backend
   const testConnection = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/health`);
+      const res = await axios.get(`${API_URL}http://localhost:5000/health`);
       console.log("🟢 Backend connecté:", res.data);
     } catch (error) {
       console.error("🔴 Backend non accessible:", error);

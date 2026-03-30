@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE_URL = "/api/reviews";
-const USERS_API_URL = "/api/users/getAllUsers";
-const COURSES_API_URL = "/api/courses";
+const API_BASE_URL = "http://localhost:5000/reviews";
+const USERS_API_URL = "http://localhost:5000/users/getAllUsers";
+const COURSES_API_URL = "http://localhost:5000/courses";
 
 // Composants d'icônes personnalisés
 const PlusIcon = () => (
