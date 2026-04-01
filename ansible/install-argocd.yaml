@@ -9,7 +9,7 @@
       shell: kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Install ArgoCD
-      shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
+      shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
     - name: Wait for ArgoCD pods to be ready
       shell: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server -n argocd --timeout=180s
@@ -26,3 +26,4 @@
     - name: Afficher le mot de passe ArgoCD
       debug:
         msg: "ArgoCD Password: {{ argocd_password.stdout }}"
+        
