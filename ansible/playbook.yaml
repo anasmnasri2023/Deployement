@@ -1,0 +1,78 @@
+---
+- hosts: master
+  become: yes
+  environment:
+    KUBECONFIG: /home/anas/.kube/config
+  tasks:
+
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - ca-certificates
+          - git
+        state: present
+
+    - name: Install Docker
+      shell: curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Apply Secret
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/secret.yaml
+
+    - name: Apply ConfigMap
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/configmap.yaml
+
+    - name: Deploy Backend
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/deploy-backend.yaml
+
+    - name: Service Backend
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/service-backend.yaml
+
+    - name: Deploy Frontend
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/deploy-frontend.yaml
+
+    - name: Service Frontend
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/service-frontend.yaml
+
+    - name: Apply Ingress
+      command: kubectl apply -f /home/anas/Desktop/Deployement/kubernetes/ingress.yaml
+
+    - name: Vérifier les pods
+      command: kubectl get pods
+      register: pods_status
+
+    - name: Afficher les pods
+      debug:
+        msg: "{{ pods_status.stdout }}"
+
+- hosts: worker
+  become: yes
+  tasks:
+
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      shell: curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
